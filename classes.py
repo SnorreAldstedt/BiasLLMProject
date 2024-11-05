@@ -8,6 +8,10 @@ class Question:
         self.question = question
         self.options = options
 
+    def __str__(self):
+        string = f"Code: {self.code},\nQuestion: {self.question},\nOptions: {self.options}"
+        return string
+
     def return_code(self) -> str:
         return self.code
     
@@ -28,10 +32,17 @@ class Question:
     
 class Category:
 
-    def __init__(self, category: str, questions: List[Question]):
+    def __init__(self, category: str, questions: List[Question] = []):
         self.category = category
         self.questions = questions
     
+    def __str__(self):
+        category_str = self.category
+        questions_str = ""
+        for q in self.questions:
+            questions_str += q.return_question()+'\n'+'\t'
+        return f""" Category: {category_str} \n Questions: {questions_str}"""
+
     def return_category(self):
         return self.category
     
@@ -43,11 +54,25 @@ class Category:
         random.shuffle(copy_questions)
         return copy_questions
     
+    def add_question(self, question):
+        self.questions.append(question)
+
+    def add_questions(self, questions):
+        self.questions += questions
+    
+    def remove_question(self, question):
+        self.questions.remove(question)
 
 class Survey:
 
     def __init__(self, question_dict: Dict[str,Question] = {}):
         self.question_dict = question_dict
+
+    def __str__(self):
+        return_str = ""
+        for q in self.question_dict.values():
+            return_str+= q.__str__()+"\n"
+        return return_str
 
     def return_question(self, code_key):
         self.question_dict[code_key].return_question()
@@ -57,4 +82,7 @@ class Survey:
 
     def add_question(self, question: Question):
         self.question_dict[question.return_code()] = question
+
+    def remove_question(self, code_key):
+        del self.question_dict[code_key]
         
