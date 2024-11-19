@@ -2,6 +2,7 @@ import torch
 from abstract_llm_models import LanguageModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+#Need to install bitsandbytes and accelerate
 class NoraLLM(LanguageModel):
 
     def __init__(self, model_name):
@@ -21,3 +22,4 @@ class NoraLLM(LanguageModel):
 
         )
         super().__init__(model_name, tokenizer, model)
+    
