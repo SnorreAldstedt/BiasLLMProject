@@ -77,14 +77,14 @@ def test_model_norallm():
     messages = [
         {"role": "user", "content": "Hva er hovedstaden i Norge?"},
         {"role": "assistant", "content": "Hovedstaden i Norge er Oslo."},
-        {"role": "user", "content": "Gi meg en liste over de beste stedene å besøke i hovedstaden"}
+        {"role": "user", "content": "Gi meg en et eksempel på en av de beste stedene å besøke i hovedstaden"}
     ]
     gen_input = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
     gen_input.to('cuda') 
 
     outputs =model.generate(
         gen_input,
-        max_new_tokens=512,
+        max_new_tokens=256,
         top_k=64,  # top-k sampling
         top_p=0.9,  # nucleus sampling
         temperature=0.3,  # a low temparature to make the outputs less chaotic
