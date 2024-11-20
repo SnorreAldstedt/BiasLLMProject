@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from llama_cpp import Llama
-
+#IMPORTS
 
 def test_llama_cpp_model():
     print("Running main.py")
@@ -63,8 +63,25 @@ def test_gen():
         use_cache=True  # speed-up generation
     )
 
+def test_model_norallm():
+    sentence  = 'Hello World!'
+    device = "cuda:0"
+    tokenizer = AutoTokenizer.from_pretrained("norallm/normistral-7b-warm-instruct")
+    model = AutoModelForCausalLM.from_pretrained("norallm/normistral-7b-warm-instruct", torch_dtype=torch.bfloat16)
+    
+    inputs    = tokenizer(sentence, return_tensors="pt").to(device)
+    model = model.to(device)
+    outputs = model(**inputs)
+
+    print(outputs)
+
+
+def test_viking():
+    pass
+
 if __name__ == "__main__":
     print("Running main.py")
+    test_model_norallm()
     #test_gen()
     #test_llama_cpp_model()
     #repo_test_input = input("1 for normistral-7b-warm-instruct, 2 for normistral-7b-warm: ")
