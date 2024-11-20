@@ -78,11 +78,20 @@ def test_model_norallm():
 
 
 def test_viking():
-    pass
+    device= "cuda:0"
+    model = AutoModelForCausalLM.from_pretrained("PrunaAI/LumiOpen-Viking-7B-QUANTO-int4bit-smashed", trust_remote_code=True, device_map='auto')
+    tokenizer = AutoTokenizer.from_pretrained("LumiOpen/Viking-7B")
+    model = model.to(device)
+
+
+    input_ids = tokenizer("What is the color of prunes?,", return_tensors='pt').to(model.device)["input_ids"]
+    outputs = model.generate(input_ids, max_new_tokens=216)
+    tokenizer.decode(outputs[0])
+    print(tokenizer.decode(outputs[0]))
 
 if __name__ == "__main__":
     print("Running main.py")
-    test_model_norallm()
+    test_viking()
     #test_gen()
     #test_llama_cpp_model()
     #repo_test_input = input("1 for normistral-7b-warm-instruct, 2 for normistral-7b-warm: ")
