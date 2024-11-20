@@ -64,6 +64,7 @@ def test_gen():
     )
 
 def test_model_norallm():
+    torch.cuda.empty_cache()
     sentence  = 'Hello World!'
     device = "cuda:0"
     tokenizer = AutoTokenizer.from_pretrained("norallm/normistral-7b-warm-instruct")
