@@ -74,10 +74,26 @@ def test_model_norallm():
         load_in_8bit = True,
         device_map='auto')
     
-    inputs    = tokenizer(sentence, return_tensors="pt")
-    outputs = model(**inputs)
+    messages = [
+        {"role": "user", "content": "Hva er hovedstaden i Norge?"},
+        {"role": "assistant", "content": "Hovedstaden i Norge er Oslo. Denne byen ligger i den sørøstlige delen av landet, ved Oslofjorden. Oslo er en av de raskest voksende byene i Europa, og den er kjent for sin rike historie, kultur og moderne arkitektur. Noen populære turistattraksjoner i Oslo inkluderer Vigelandsparken, som viser mer enn 200 skulpturer laget av den berømte norske skulptøren Gustav Vigeland, og det kongelige slott, som er den offisielle residensen til Norges kongefamilie. Oslo er også hjemsted for mange museer, gallerier og teatre, samt mange restauranter og barer som tilbyr et bredt utvalg av kulinariske og kulturelle opplevelser."},
+        {"role": "user", "content": "Gi meg en liste over de beste stedene å besøke i hovedstaden"}
+    ]
+    gen_input = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+    outputs =model.generate(
+        gen_input,
+        max_new_tokens=1024,
+        top_k=64,  # top-k sampling
+        top_p=0.9,  # nucleus sampling
+        temperature=0.3,  # a low temparature to make the outputs less chaotic
+        repetition_penalty=1.0,  # turn the repetition penalty off, having it on can lead to very bad outputs
+        do_sample=True,  # randomly sample the outputs
+        use_cache=True  # speed-up generation
+    )
 
     print(outputs)
+    tokenizer.decode(outputs[0])
+    print(tokenizer.decode(outputs[0]))
 
 
 def test_viking():
