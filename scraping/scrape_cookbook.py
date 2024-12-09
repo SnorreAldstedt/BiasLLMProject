@@ -20,8 +20,8 @@ if source:
 
     #print(len(q_divs))
     for div in q_divs:
-        spm_id = div.find("h3").get_text()
-        title = div.find("div").get_text()
+        spm_id = div.find("h3").get_text().strip()
+        title = div.find("div").get_text().strip()
         val_cat_dict = {}
         #table_div = div.find("div", class_="data-table")
         print("Title:")
@@ -32,8 +32,8 @@ if source:
             rows = tbody.find_all("tr")
         
             for row in rows:
-                key = row.find("td", class_="nowrap").get_text()
-                value = row.select("td:not(.nowrap)")[0].get_text()
+                key = row.find("td", class_="nowrap").get_text().strip()
+                value = row.select("td:not(.nowrap)")[0].get_text().strip()
                 val_cat_dict[key] = value
         
             questions_dict[spm_id] = {
