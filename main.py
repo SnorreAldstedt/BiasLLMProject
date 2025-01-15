@@ -1,6 +1,7 @@
 import torch
+import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from llama_cpp import Llama
+#from llama_cpp import Llama
 #IMPORTS
 
 def test_llama_cpp_model():
@@ -82,6 +83,9 @@ def test_model_norallm():
     gen_input = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
     gen_input.to('cuda') 
 
+    print("Generating...")
+    start_timer = time.time()
+
     outputs =model.generate(
         gen_input,
         max_new_tokens=256,
@@ -96,6 +100,8 @@ def test_model_norallm():
     #print(outputs)
     #okenizer.decode(outputs[0])
     print(tokenizer.decode(outputs[0]))
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")
 
 
 def test_viking():
@@ -112,6 +118,7 @@ def test_viking():
 
 if __name__ == "__main__":
     print("Running main.py")
+    time
     test_model_norallm()
     #test_gen()
     #test_llama_cpp_model()
