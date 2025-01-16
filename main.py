@@ -88,7 +88,7 @@ def test_model_norallm():
 
     outputs =model.generate(
         gen_input,
-        max_new_tokens=256,
+        max_new_tokens=128,
         top_k=64,  # top-k sampling
         top_p=0.9,  # nucleus sampling
         temperature=0.3,  # a low temparature to make the outputs less chaotic
@@ -118,7 +118,6 @@ def test_viking():
 
 if __name__ == "__main__":
     print("Running main.py")
-    time
     test_model_norallm()
     #test_gen()
     #test_llama_cpp_model()
