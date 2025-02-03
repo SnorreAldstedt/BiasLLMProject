@@ -1,6 +1,7 @@
 import torch
 import time
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+import gc
 #from llama_cpp import Llama
 #IMPORTS
 
@@ -81,7 +82,7 @@ def test_model_norallm():
         {"role": "user", "content": "Gi meg en et eksempel på en av de beste stedene å besøke i hovedstaden"}
     ]
     gen_input = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
-    gen_input.to('cuda') 
+    gen_input = gen_input.to('cuda') 
 
     print("Generating...")
     start_timer = time.time()
@@ -116,9 +117,97 @@ def test_viking():
     tokenizer.decode(outputs[0])
     print(tokenizer.decode(outputs[0]))
 
+def test_llama():
+    model_id ="meta-llama/Meta-Llama-3-8B"
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        torch_dtype=torch.float16,
+        device_map="auto")
+
+    tokenizer.pad_token = tokenizer.eos_token
+
+    #Manually defined chat template because the tokenizer doesnt have it
+    tokenizer.chat_template = """<s>[INST]  {messages} [/INST]</s>"""
+
+
+    messages = [
+        {"role": "user", "content": "Hva er hovedstaden i Norge?"},
+        {"role": "assistant", "content": "Hovedstaden i Norge er Oslo."},
+        {"role": "user", "content": "Gi meg en et eksempel på en av de beste stedene å besøke i hovedstaden"}
+    ]
+    gen_input = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+    gen_input = gen_input.to('cuda') 
+
+    print("Generating...")
+    start_timer = time.time()
+
+    #model.input_ids.to('cuda')
+
+    outputs =model.generate(
+        gen_input,
+        max_new_tokens=128,
+        top_k=64,  # top-k sampling
+        top_p=0.9,  # nucleus sampling
+        temperature=0.3,  # a low temparature to make the outputs less chaotic
+        repetition_penalty=1.0,  # turn the repetition penalty off, having it on can lead to very bad outputs
+        do_sample=True,  # randomly sample the outputs
+        use_cache=True,  # speed-up generation
+        pad_token_id = tokenizer.pad_token_id,
+        attention_mask = torch.ones_like(gen_input)
+    )
+
+    #print(outputs)
+    #okenizer.decode(outputs[0])
+    print(tokenizer.decode(outputs[0]))
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")    
+
+def test_llama_pipe():
+    model_id = "meta-llama/Meta-Llama-3-8B"
+    pipe = pipeline("text-generation", model=model_id, model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto")
+
+    context = "Du er en hjelpsom assistent som svarer på spørsmål"
+    question = "Hva er hovedstaden i Oslo"
+    prompt = f"Context: {context}\nQuestion: {question}\nAnswer:"
+
+    newline_token_id = pipe.tokenizer("\n", add_special_tokens=False)["input_ids"][0]
+
+    print("Generating...")
+    start_timer = time.time()
+    response = pipe(prompt, do_sample=True, pad_token_id=pipe.tokenizer.eos_token_id, eos_token_id = newline_token_id, max_new_tokens = 50)
+    print(response)
+
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")
+
+def test_mistral_pipe():
+    model_id = "mistralai/Mistral-7B-v0.1"
+    pipe = pipeline("text-generation", model=model_id, model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto")
+
+    context = "Du er en hjelpsom assistent som svarer på spørsmål"
+    question = "Hva er hovedstaden i Oslo"
+    prompt = f"Context: {context}\nQuestion: {question}\nAnswer:"
+
+    newline_token_id = pipe.tokenizer("\n", add_special_tokens=False)["input_ids"][0]
+
+    print("Generating...")
+    start_timer = time.time()
+    response = pipe(prompt, do_sample=True, pad_token_id=pipe.tokenizer.eos_token_id, eos_token_id = newline_token_id, max_new_tokens = 50)
+    print(response)
+
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")
+
 if __name__ == "__main__":
+    #Empty cache, RAM, memomry etc.
+    torch.cuda.empty_cache()
+    gc.collect()
+    torch.cuda.ipc_collect()
+
+
     print("Running main.py")
-    test_model_norallm()
+    test_mistral_pipe()
     #test_gen()
     #test_llama_cpp_model()
     #repo_test_input = input("1 for normistral-7b-warm-instruct, 2 for normistral-7b-warm: ")

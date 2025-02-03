@@ -16,9 +16,7 @@ class LLM_Class:
         self.gen_config = config
     
     def generate_answer(self, input, gen_config: GenerationConfig):
-
         gen_input = self.tokenizer.apply_chat_template(input, add_generation_prompt=True, return_tensors="pt")
-
         outputs = self.model.generate(gen_input, gen_config)
 
         return self.tokenizer.decode(outputs[0])
