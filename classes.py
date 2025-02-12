@@ -85,4 +85,20 @@ class Survey:
 
     def remove_question(self, code_key):
         del self.question_dict[code_key]
+
+class Persona:
+
+    def __init__(self, age: int, gender:str, have_kids: bool, occupation: str):
+        self.age = age
+        self.gender = gender
+        self.have_kids = have_kids
+        self.occupation = occupation
+    
+    def create_persona_norwegian(self) -> str:
+        alder = self.age
+        kjonn = self.gender
+        jobb = self.occupation
+        barn = "barn" if self.have_kids else "ingen barn"
+        persona_str = f"Du er en {kjonn} som er {alder} år, har {barn} og er {jobb}. \
+Du skal svare på en spørreundersøkelse sånn som denne personen ville gjort. Svar bare ett alternativ."
         

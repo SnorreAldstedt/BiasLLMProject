@@ -323,7 +323,7 @@ Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 '
     print("Generating...")
     start_timer = time.time()
 
-    outputs =model.generate(
+    outputs = model.generate(
         gen_input,
         max_new_tokens=128,
         top_k=64,  # top-k sampling
@@ -348,7 +348,7 @@ if __name__ == "__main__":
 
 
     print("Running main.py")
-    test_model_norbloom()
+    test_mistral_3()
     #test_gen()
     #test_llama_cpp_model()
     #repo_test_input = input("1 for normistral-7b-warm-instruct, 2 for normistral-7b-warm: ")
