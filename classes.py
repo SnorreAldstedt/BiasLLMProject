@@ -88,17 +88,26 @@ class Survey:
 
 class Persona:
 
-    def __init__(self, age: int, gender:str, have_kids: bool, occupation: str):
+    def __init__(self, age: int, gender:str, have_kids: bool, occupation: str, persona_str=None):
         self.age = age
         self.gender = gender
         self.have_kids = have_kids
         self.occupation = occupation
+        if persona_str != None:
+            self.persona_str = persona_str
     
-    def create_persona_norwegian(self) -> str:
+    def string_persona_norwegian(self) -> str:
         alder = self.age
         kjonn = self.gender
         jobb = self.occupation
         barn = "barn" if self.have_kids else "ingen barn"
         persona_str = f"Du er en {kjonn} som er {alder} år, har {barn} og er {jobb}. \
 Du skal svare på en spørreundersøkelse sånn som denne personen ville gjort. Svar bare ett alternativ."
+        return persona_str
+    
+    def set_persona_str(self, persona_str = None):
+        if persona_str != None:
+            self.persona_str = persona_str
+        else:
+            self.persona_str = self.string_persona_norwegian()
         

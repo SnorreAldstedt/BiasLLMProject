@@ -4,7 +4,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import gc
 import re
 import json 
-
+from classes import Persona
 JSON_PATH = "scraping/combined_questions.json"
 QUESTION_IDS = ["Spm1", "Spm2", "Spm3", 
                 "spm6_1","spm6_2","spm6_3","spm6_4","spm6_5","spm6_6","spm6_7","spm6_8","spm6_9","spm6_10","spm6_11",
@@ -16,6 +16,7 @@ QUESTION_IDS = ["Spm1", "Spm2", "Spm3",
                 "Spm31a","Spm31b","Spm31c","Spm48a","Spm48b","Spm48c","Spm48d","Spm48e","Spm48f","Spm48g",
                 "Spm51a","Spm51b","Spm51c","Spm51d","Spm51e","Spm51f","Spm51g",
                 ]
+NR_OF_QUESTIONS = len(QUESTION_IDS)
 
 def run_question_normistral(model, tokenizer, messages):
     torch.cuda.empty_cache()
@@ -50,35 +51,70 @@ def return_dict_json(dict_path=JSON_PATH):
 
 data = return_dict_json()
 
-def get_question_object(question_id, dict=data):
-    return data[question_id]
+def get_question_object(question_id, dictionary=data):
+    return dictionary[question_id]
 
 def get_question_from_object(question_object):
     return question_object["question"]
 
-def get_options_from_object(question_object ):
-    return question_object["alternatives"]
+#Has to filter out values that ends with * (Because these were not shown to the participants, and values over 90.)
+def get_options_from_object(question_object):
+    options = question_object["alternatives"]
+    filter_options = {}
+    for k,v in options.items():
+        v_str = v.strip()
+        if v_str[-1] =="*":
+            continue
+        
+        if int(k) >= 90:
+            continue
 
-def get_question_object(question_id, dictionary=data):
-    return data[question_id]
+        filter_options[k] = v
 
-for id in QUESTION_IDS:
-    print(get_question_from_object(get_question_object(id)))
+    options_str = ", ".join(f"{k}: {v}" for k,v in filter_options.items())
+    
+    return options_str
 
-def generate_question_prompt(question_id, question_dict=JSON_PATH):
-    return None
 
-test_messages = [
-        #{
-        #    "role": "system",
-        #    "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
-        #},
-        {
-            "role": "user",
-            "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
-Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+#for id in QUESTION_IDS:
+#    print(get_question_from_object(get_question_object(id)))
+
+def generate_question_prompt(question_id, question_dict=data):
+    q_obj = get_question_object(question_id, question_dict)
+    q = get_question_from_object(q_obj)
+    o = get_options_from_object(q_obj)
+    q_prompt = f"Du kan svare: '{o}'. {q}"
+    return q_prompt
+
+def combine_persona_question_prompt(persona_p, question_p):
+    final_prompt = f"{persona_p}\n{question_p}"
+    return final_prompt
+
+def generate_messages(new_prompt, messages= []):
+    user_dict = {
+        "role": "user",
+        "content": new_prompt
         }
-    ]
+    messages.append(user_dict) 
+
+# test_persona = Persona(age=25, gender="kvinne", have_kids=False, occupation="student")
+# persona_str = test_persona.string_persona_norwegian()
+# question_str = generate_question_prompt("Spm5a")
+# final_str = combine_persona_question_prompt(persona_str, question_str)
+
+# print(final_str)
+
+# test_messages = [
+#         #{
+#         #    "role": "system",
+#         #    "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
+#         #},
+#         {
+#             "role": "user",
+#             "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
+# Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+#         }
+#     ]
 #return_string = run_question_normistral(model=None, tokenizer = None, messages=test_messages)
 #clean_string = remove_instruct_prompt(return_string)
 #print(clean_string)
