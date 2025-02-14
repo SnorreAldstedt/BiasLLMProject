@@ -22,9 +22,9 @@ def run_question_normistral(model, tokenizer, messages):
     torch.cuda.empty_cache()
     device = "cuda" # the device to load the model onto
 
-    model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", torch_dtype=torch.float16,
-        device_map="auto")
-    tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
+    #model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", torch_dtype=torch.float16,
+    #    device_map="auto")
+    #tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
 
     print("Generating...")
 
@@ -33,7 +33,7 @@ def run_question_normistral(model, tokenizer, messages):
     model_inputs = encodeds.to(device)
     #model.to(device)
 
-    generated_ids = model.generate(model_inputs, max_new_tokens=64, do_sample=True,  temperature = 0.3, repetition_penalty = 1.0, top_k = 64, top_p = 0.9)
+    generated_ids = model.generate(model_inputs, max_new_tokens=20, do_sample=True,  temperature = 0.3, repetition_penalty = 1.0, top_k = 64, top_p = 0.9)
     decoded = tokenizer.batch_decode(generated_ids)
     return (decoded[0])
 
@@ -43,13 +43,13 @@ def remove_instruct_prompt(string):
     clean_string = clean_string.replace("</s>", "")
     return clean_string
 
-def return_dict_json(dict_path=JSON_PATH):
+def load_json(dict_path=JSON_PATH):
     with open(dict_path, "r", encoding="utf-8") as d:
         data = json.load(d)
 
     return data
 
-data = return_dict_json()
+data = load_json()
 
 def get_question_object(question_id, dictionary=data):
     return dictionary[question_id]
@@ -96,6 +96,25 @@ def generate_messages(new_prompt, messages= []):
         "content": new_prompt
         }
     messages.append(user_dict) 
+    return messages
+
+
+def load_personas_from_json(json_path):
+    personas_data = load_json(json_path)
+    personas_list = []
+    for persona_dict in personas_data:
+        age = persona_dict["age"]
+        gender = persona_dict["gender"]
+        have_kids = persona_dict["kids"]
+        occupation = persona_dict["occupation"]
+        persona_str = persona_dict["persona_str"]
+
+        persona = Persona(age, gender, have_kids, occupation, persona_str)
+        personas_list.append(persona)
+
+    return personas_list
+
+#load_personas_from_json("personas.json")
 
 # test_persona = Persona(age=25, gender="kvinne", have_kids=False, occupation="student")
 # persona_str = test_persona.string_persona_norwegian()
