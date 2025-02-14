@@ -24,12 +24,13 @@ print(clean_string)
 
 
 """
-persona_nr = 0
+#persona_nr = 0
+start_persona = 44
 total_personas = len(personas)
-for persona in personas:    
+for persona_nr in range(start_persona, len(personas)):    
     print(f"{persona_nr}/{total_personas}")
 
-    p_prompt = persona.persona_str
+    p_prompt = personas[persona_nr].persona_str
     q_nr = 0
     answers = {}
 
@@ -45,7 +46,7 @@ for persona in personas:
         answers[id]=clean_string
 
         q_nr += 1
-    filename = f"{persona_nr}_mistral.json"
+    filename = f"results/mistral/{persona_nr}_mistral.json"
     with open(filename, 'w', encoding="utf-8") as f:
         json.dump(answers, f,ensure_ascii=False)
-    persona_nr += 1
+    #persona_nr += 1
