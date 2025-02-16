@@ -2,6 +2,7 @@ import torch
 import time
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import gc
+from run_models_functions import *
 #from llama_cpp import Llama
 #IMPORTS
 
@@ -77,9 +78,15 @@ def test_model_norallm():
         device_map='auto')
     
     messages = [
-        {"role": "user", "content": "Hva er hovedstaden i Norge?"},
-        {"role": "assistant", "content": "Hovedstaden i Norge er Oslo."},
-        {"role": "user", "content": "Gi meg en et eksempel på en av de beste stedene å besøke i hovedstaden"}
+        #{
+        #    "role": "system",
+        #    "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
+        #},
+        {
+            "role": "user",
+            "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
+Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+        }
     ]
     gen_input = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
     gen_input = gen_input.to('cuda') 
@@ -103,6 +110,14 @@ def test_model_norallm():
     print(tokenizer.decode(outputs[0]))
     end_timer = time.time()
     print(end_timer-start_timer,"s to run the code")
+
+    decoded = tokenizer.batch_decode(outputs)
+    return_string = decoded[0].split("<|im_start|> assistant")[-1]
+    #print(decoded)
+    clean_string = remove_instruct_prompt(return_string)
+    print(clean_string)
+
+    #answers[id]=clean_string
 
 
 def test_viking():
