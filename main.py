@@ -348,7 +348,7 @@ if __name__ == "__main__":
 
 
     print("Running main.py")
-    test_mistral_3()
+    test_model_norallm()
     #test_gen()
     #test_llama_cpp_model()
     #repo_test_input = input("1 for normistral-7b-warm-instruct, 2 for normistral-7b-warm: ")
