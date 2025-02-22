@@ -76,16 +76,15 @@ def test_model_norallm():
         torch_dtype=torch.bfloat16,
         load_in_8bit = True,
         device_map='auto')
-    
+    tokenizer.eos_token = "<|im_end|>"
     messages = [
-        #{
-        #    "role": "system",
-        #    "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
-        #},
+        {
+            "role": "system",
+            "content": "Lat som du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar kort og enkelt og bare ett alternativ."
+        },
         {
             "role": "user",
-            "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
-Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+            "content": "Du kan svare: '1 helt enig', '2 nokså enig', '3 både og', '4 nokså uenig', '5 helt uenig'. EØS-avtalen bør sies opp"
         }
     ]
     gen_input = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
@@ -99,7 +98,7 @@ Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 '
         max_new_tokens=128,
         top_k=64,  # top-k sampling
         top_p=0.9,  # nucleus sampling
-        temperature=0.3,  # a low temparature to make the outputs less chaotic
+        temperature=0.1,  # a low temparature to make the outputs less chaotic
         repetition_penalty=1.0,  # turn the repetition penalty off, having it on can lead to very bad outputs
         do_sample=True,  # randomly sample the outputs
         use_cache=True  # speed-up generation

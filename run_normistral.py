@@ -45,12 +45,13 @@ for persona_nr in range(start_persona, len(personas)):
         template_messages = generate_messages(prompt, messages=[])
 
         return_string = run_question_normistral(model, tokenizer, template_messages)
-        clean_string = remove_instruct_prompt(return_string)
+        respond_string = return_string.split("<|im_start|> assistant")[-1]
+        clean_string = remove_instruct_prompt(respond_string)
 
         answers[id]=clean_string
 
         q_nr += 1
-    filename = f"results/mistral/{persona_nr}_mistral.json"
+    filename = f"results/normistral/{persona_nr}_normistral.json"
     with open(filename, 'w', encoding="utf-8") as f:
         json.dump(answers, f,ensure_ascii=False)
     #persona_nr += 1
