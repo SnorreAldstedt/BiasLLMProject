@@ -37,6 +37,25 @@ def run_question_normistral(model, tokenizer, messages):
     decoded = tokenizer.batch_decode(generated_ids)
     return (decoded[0])
 
+def run_question_llama(model, tokenizer, messages):
+    torch.cuda.empty_cache()
+    device = "cuda" # the device to load the model onto
+
+    terminators = [
+    tokenizer.eos_token_id,
+    tokenizer.convert_tokens_to_ids("<|eot_id|>")]
+
+    print("Generating...")
+
+    input_ids = tokenizer.apply_chat_template(messages, return_tensors="pt", add_generation_prompt=True).to(model.device)
+
+    #model_inputs = encodeds.to(device)
+    #model.to(device)
+
+    generated_ids = model.generate(input_ids, max_new_tokens=128, do_sample=True,  temperature = 0.1, top_p = 0.9)
+    response = generated_ids[0][input_ids.shape[-1]:]
+    return (tokenizer.decode(response, skip_special_tokens=True))
+
 def remove_instruct_prompt(string):
     clean_string = re.sub(r"\[INST\][\s\S]*?\[/INST\]", "", string, flags=re.DOTALL)
     clean_string = clean_string.replace("<s>", "")

@@ -181,9 +181,9 @@ def test_llama_pipe():
     model_id = "meta-llama/Meta-Llama-3-8B"
     pipe = pipeline("text-generation", model=model_id, model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto")
 
-    context = "Du er en hjelpsom assistent som svarer på spørsmål"
-    question = "Hva er hovedstaden i Oslo"
-    prompt = f"Context: {context}\nQuestion: {question}\nAnswer:"
+    context = "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
+    question = "Du kan svare ett av alternativene: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+    prompt = f"{context}\n{question}\n"
 
     newline_token_id = pipe.tokenizer("\n", add_special_tokens=False)["input_ids"][0]
 
@@ -354,6 +354,123 @@ Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 '
     end_timer = time.time()
     print(end_timer-start_timer,"s to run the code")
 
+def test_llama_3():
+    device = "cuda"
+    model = AutoModelForCausalLM.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct", torch_dtype=torch.bfloat16, load_in_8bit = True, device_map="auto")
+    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct")
+
+    print("Generating...")
+    start_timer = time.time()
+    messages = [
+        {
+            "role": "user",
+            "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
+                  Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+        }
+    ]
+
+    message_encoded = tokenizer.apply_chat_template(messages, return_tensor="pt")
+    gen_input = message_encoded#.to('auto') 
+
+    terminators = [
+    tokenizer.eos_token_id,
+    tokenizer.convert_tokens_to_ids("<|eot_id|>")
+]
+
+    generated = model.generate(gen_input, max_new_tokens = 64, do_sample=True, temperature = 0.6, top_p = 0.9)
+    decoded = tokenizer.batch_decode(generated)
+    print(decoded)
+
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")
+
+def test_llama_instruct_pipe():
+    model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+    pipe = pipeline("text-generation", model=model_id, model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto")
+
+    context = "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
+    question = "Du kan svare ett av alternativene: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+    prompt = f"{context}\n{question}\n"
+
+    newline_token_id = pipe.tokenizer("\n", add_special_tokens=False)["input_ids"][0]
+
+    print("Generating...")
+    start_timer = time.time()
+    response = pipe(prompt, do_sample=True, pad_token_id=pipe.tokenizer.eos_token_id, eos_token_id = newline_token_id, max_new_tokens = 50)
+    print(response)
+
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")
+
+def test_mixtral():
+    tokenizer = AutoTokenizer.from_pretrained("NorwAI/NorwAI-Mixtral-8x7B-instruct")
+    model = AutoModelForCausalLM.from_pretrained("NorwAI/NorwAI-Mixtral-8x7B-instruct", device_map='auto')
+
+    print("Generating...")
+    start_timer = time.time()
+    messages = [
+        {
+            "role": "user",
+            "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
+                  Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+        }
+    ]
+
+    message_encoded = tokenizer.apply_chat_template(messages, return_tensor="pt")
+    gen_input = message_encoded.to("cuda")
+    # generate response
+    #inputs = tokenizer(gen_input, return_tensors="pt")
+    outputs = model.generate(gen_input, 
+                    min_new_tokens=50, 
+                    max_new_tokens=100,
+                    do_sample=True,
+                    temperature=0.3)
+    outputs = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+def test_llama_new():
+    model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    torch_dtype=torch.bfloat16,
+    load_in_8bit = True,
+    device_map="auto",)
+
+    print("Generating...")
+    start_timer = time.time()
+    messages = [
+        {
+            "role": "user",
+            "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
+                  Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+        }
+    ]
+
+    input_ids = tokenizer.apply_chat_template(
+        messages,
+        add_generation_prompt=True,
+        return_tensors="pt"
+    ).to(model.device)
+
+    terminators = [
+        tokenizer.eos_token_id,
+        tokenizer.convert_tokens_to_ids("<|eot_id|>")
+    ]
+
+    outputs = model.generate(
+        input_ids,
+        max_new_tokens=256,
+        eos_token_id=terminators,
+        do_sample=True,
+        temperature=0.6,
+        top_p=0.9,
+        )
+    response = outputs[0][input_ids.shape[-1]:]
+    print(tokenizer.decode(response, skip_special_tokens=True))
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")
+
 if __name__ == "__main__":
     #Empty cache, RAM, memomry etc.
     torch.cuda.empty_cache()
@@ -362,7 +479,7 @@ if __name__ == "__main__":
 
 
     print("Running main.py")
-    test_model_norallm()
+    test_llama_new()
     #test_gen()
     #test_llama_cpp_model()
     #repo_test_input = input("1 for normistral-7b-warm-instruct, 2 for normistral-7b-warm: ")
