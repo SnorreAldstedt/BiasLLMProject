@@ -56,6 +56,23 @@ def run_question_llama(model, tokenizer, messages):
     response = generated_ids[0][input_ids.shape[-1]:]
     return (tokenizer.decode(response, skip_special_tokens=True))
 
+def run_question_norwai_inst(model, tokenizer, prompt):
+    torch.cuda.empty_cache()
+    device = "cuda" # the device to load the model onto
+
+    print("Generating...")
+
+    #prompt = f"{instruction}\n\n{inst_input}\nSvar:" #Different prompt than the other models, reason is beacuse the documentation shows this as a pretrained prompt
+    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+
+    generated_ids = model.generate(**inputs, 
+                    max_new_tokens=100,
+                    do_sample=True,
+                    temperature=0.3)
+    outputs = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+    return outputs
+
+
 def remove_instruct_prompt(string):
     clean_string = re.sub(r"\[INST\][\s\S]*?\[/INST\]", "", string, flags=re.DOTALL)
     clean_string = clean_string.replace("<s>", "")
@@ -132,27 +149,3 @@ def load_personas_from_json(json_path):
         personas_list.append(persona)
 
     return personas_list
-
-#load_personas_from_json("personas.json")
-
-# test_persona = Persona(age=25, gender="kvinne", have_kids=False, occupation="student")
-# persona_str = test_persona.string_persona_norwegian()
-# question_str = generate_question_prompt("Spm5a")
-# final_str = combine_persona_question_prompt(persona_str, question_str)
-
-# print(final_str)
-
-# test_messages = [
-#         #{
-#         #    "role": "system",
-#         #    "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
-#         #},
-#         {
-#             "role": "user",
-#             "content": "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ.\
-# Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
-#         }
-#     ]
-#return_string = run_question_normistral(model=None, tokenizer = None, messages=test_messages)
-#clean_string = remove_instruct_prompt(return_string)
-#print(clean_string)

@@ -427,6 +427,35 @@ def test_mixtral():
                     temperature=0.3)
     outputs = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+def test_norwai_mistral():
+
+    model_and_tokenizer_path = "NorwAI/NorwAI-Mistral-7B-instruct"
+
+
+    # import tokenizer and the model
+    tokenizer = AutoTokenizer.from_pretrained(model_and_tokenizer_path)
+    model = AutoModelForCausalLM.from_pretrained(model_and_tokenizer_path,torch_dtype=torch.bfloat16, load_in_8bit = True, device_map='balanced')
+
+    # define your own prompt
+    print("Generating...")
+    start_timer = time.time()
+    instruction = "Du er en kvinne som er 25 år, har ingen barn og er student som skal svare på en spørreundersøkelse. Svar bare ett alternativ."
+    inst_input = "Du kan svare: 1 'helt enig', 2 'nokså enig', 3 'både og', 4 'nokså uenig, 5 'helt uenig'. EØS-avtalen bør sies opp"
+    prompt = f"{instruction}\n\n{inst_input}\nSvar:"
+    #message_encoded = tokenizer.apply_chat_template(messages, return_tensor="pt")
+    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+
+    # generate response
+    outputs = model.generate(**inputs, 
+                    max_new_tokens=100,
+                    do_sample=True,
+                    temperature=0.3)
+    outputs = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    print(outputs)
+    end_timer = time.time()
+    print(end_timer-start_timer,"s to run the code")
+
 def test_llama_new():
     model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
 
@@ -471,6 +500,33 @@ def test_llama_new():
     end_timer = time.time()
     print(end_timer-start_timer,"s to run the code")
 
+
+def test_run_question():
+    personas = load_personas_from_json("personas.json")
+    data = load_json()
+
+    tokenizer = AutoTokenizer.from_pretrained("NorwAI/NorwAI-Mistral-7B-instruct")
+    model = AutoModelForCausalLM.from_pretrained(
+        "NorwAI/NorwAI-Mistral-7B-instruct", 
+        torch_dtype=torch.bfloat16,
+        load_in_8bit = True,
+        device_map='balanced')
+    
+    test_p = 0
+    test_q = 0
+    p_prompt = personas[test_p].persona_str
+    q_prompt = generate_question_prompt("Spm1")
+    instruction=p_prompt
+    inst_input=q_prompt
+    prompt = f"{instruction}\n\n{inst_input}\nSvar:"
+    return_string = run_question_norwai_inst(model, tokenizer, prompt)
+    # Clean the string, remove the prompt from the returning string
+    clean_string = return_string.replace(prompt, "")
+    print(return_string)
+    print("Cleaned up\n")
+    print(clean_string)
+
+
 if __name__ == "__main__":
     #Empty cache, RAM, memomry etc.
     torch.cuda.empty_cache()
@@ -479,7 +535,7 @@ if __name__ == "__main__":
 
 
     print("Running main.py")
-    test_llama_new()
+    test_run_question()
     #test_gen()
     #test_llama_cpp_model()
     #repo_test_input = input("1 for normistral-7b-warm-instruct, 2 for normistral-7b-warm: ")
