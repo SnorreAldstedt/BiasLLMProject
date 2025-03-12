@@ -14,7 +14,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 #persona_nr = 0
 #start_persona = 45
-start_persona = 4
+start_persona = 72
 total_personas = len(personas)
 for persona_nr in range(start_persona, len(personas)):    
     print(f"{persona_nr}/{total_personas}")
