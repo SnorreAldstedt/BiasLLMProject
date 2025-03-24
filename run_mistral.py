@@ -5,8 +5,11 @@ personas = load_personas_from_json("personas.json")
 data = load_json()
 
 
-model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", torch_dtype=torch.float16,
-        device_map="auto")
+model = AutoModelForCausalLM.from_pretrained(
+    "mistralai/Mistral-7B-Instruct-v0.2", 
+    torch_dtype=torch.float16,
+    load_in_4bit = True,
+    device_map="auto")
 tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
 """
 test_persona = personas[0]
@@ -24,8 +27,12 @@ print(clean_string)
 
 
 """
+torch.cuda.empty_cache()
+gc.collect()
+torch.cuda.ipc_collect()
+
 #persona_nr = 0
-start_persona = 45
+start_persona = 0
 total_personas = len(personas)
 for persona_nr in range(start_persona, len(personas)):    
     print(f"{persona_nr}/{total_personas}")
@@ -46,7 +53,7 @@ for persona_nr in range(start_persona, len(personas)):
         answers[id]=clean_string
 
         q_nr += 1
-    filename = f"results/mistral/{persona_nr}_mistral.json"
+    filename = f"results/mistral2/{persona_nr}_mistral.json"
     with open(filename, 'w', encoding="utf-8") as f:
         json.dump(answers, f,ensure_ascii=False)
     #persona_nr += 1

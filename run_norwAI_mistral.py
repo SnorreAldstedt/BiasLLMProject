@@ -14,7 +14,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 #persona_nr = 0
 #start_persona = 45
-start_persona = 72
+start_persona = 80
 total_personas = len(personas)
 for persona_nr in range(start_persona, len(personas)):    
     print(f"{persona_nr}/{total_personas}")
@@ -36,7 +36,7 @@ for persona_nr in range(start_persona, len(personas)):
         answers[id]=clean_string
 
         q_nr += 1
-    filename = f"results/norwAI_mistral/{persona_nr}_norwAI.json"
+    filename = f"results/norwAI_mistral2/{persona_nr}_norwAI.json"
     with open(filename, 'w', encoding="utf-8") as f:
         json.dump(answers, f,ensure_ascii=False)
     #persona_nr += 1

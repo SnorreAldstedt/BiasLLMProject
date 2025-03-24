@@ -36,7 +36,7 @@ for persona_nr in range(start_persona, len(personas)):
         answers[id]=return_string
 
         q_nr += 1
-    filename = f"results/llama3/{persona_nr}_llama3.json"
+    filename = f"results/llama3_2/{persona_nr}_llama3.json"
     with open(filename, 'w', encoding="utf-8") as f:
         json.dump(answers, f,ensure_ascii=False)
     #persona_nr += 1
