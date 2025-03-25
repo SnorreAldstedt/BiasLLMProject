@@ -32,7 +32,7 @@ gc.collect()
 torch.cuda.ipc_collect()
 
 #persona_nr = 0
-start_persona = 0
+start_persona = 10
 total_personas = len(personas)
 for persona_nr in range(start_persona, len(personas)):    
     print(f"{persona_nr}/{total_personas}")

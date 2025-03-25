@@ -33,7 +33,7 @@ def run_question_normistral(model, tokenizer, messages):
     model_inputs = encodeds.to(device)
     #model.to(device)
 
-    generated_ids = model.generate(model_inputs, max_new_tokens=128, do_sample=True,  temperature = 0.1, repetition_penalty = 1.0, top_k = 64, top_p = 0.9)
+    generated_ids = model.generate(model_inputs, max_new_tokens=64, do_sample=True,  temperature = 0.1, repetition_penalty = 1.0, top_k = 64, top_p = 0.9)
     decoded = tokenizer.batch_decode(generated_ids)
     return (decoded[0])
 
