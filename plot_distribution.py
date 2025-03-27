@@ -19,11 +19,11 @@ def plot_10yr_distributions(json_file_path):
     max_age = max(all_ages)
     
     # We’ll define bins in steps of 10 years
-    start_bin = 10 * (min_age // 10)
+    start_bin = 20 * (min_age // 20)
     if start_bin > min_age:
-        start_bin -= 10
-    end_bin = 10 * (math.ceil(max_age / 10.0) + 1)
-    bin_edges = list(range(start_bin, end_bin + 1, 10))
+        start_bin -= 20
+    end_bin = 20 * (math.ceil(max_age / 20.0) + 1)
+    bin_edges = list(range(start_bin, end_bin + 1, 20))
 
     # 3) Function to determine which bin label an age belongs to
     def get_10yr_bin_label(age):
