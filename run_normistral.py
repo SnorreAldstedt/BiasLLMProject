@@ -29,7 +29,7 @@ print(clean_string)
 """
 #persona_nr = 0
 #start_persona = 45
-start_persona = 115
+start_persona = 0
 total_personas = len(personas)
 for persona_nr in range(start_persona, len(personas)):    
     print(f"{persona_nr}/{total_personas}")
@@ -51,7 +51,7 @@ for persona_nr in range(start_persona, len(personas)):
         answers[id]=clean_string
 
         q_nr += 1
-    filename = f"results/normistral/{persona_nr}_normistral.json"
+    filename = f"results/normistral2/{persona_nr}_normistral.json"
     with open(filename, 'w', encoding="utf-8") as f:
         json.dump(answers, f,ensure_ascii=False)
     #persona_nr += 1
