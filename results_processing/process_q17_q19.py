@@ -52,7 +52,7 @@ def save_processed(original_dict_list, altered_dict_list, save_folder, save_name
 
 def process_and_save(original_dict_list, altered_dict_list, question_keys, save_folder, save_name):
     processed_altered = process_questions(original_dict_list, altered_dict_list, question_keys)
-    save_processed(original_dict_list, processed_altered, save_folder, save_name)
+    save_processed(altered_dict_list, processed_altered, save_folder, save_name)
 
 if __name__ == "__main__":
     mistral_list = [load_json(f"results/mistral/{p_nr}_mistral.json") for p_nr in range(120)]
