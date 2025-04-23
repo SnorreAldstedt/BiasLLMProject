@@ -17,7 +17,7 @@ def prompt_for_manual_input(persona_nr, question_key, original_value):
 
 def edit_processed_files(original_folder, original_suffix,
                          processed_folder, processed_suffix,
-                         persona_count=120):
+                         start_persona = 0, persona_count=120):
     for persona_nr in range(persona_count):
         original_path = os.path.join(original_folder, f"{persona_nr}_{original_suffix}.json")
         processed_path = os.path.join(processed_folder, f"{persona_nr}_{processed_suffix}.json")
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     print("results_manual_processing/mistral/ FINISHED")
     #edit_processed_files("results/mistral2", "mistral","results_manual_processing/mistral2/", "mistral2_processed")
     print("results_manual_processing/mistral2/ FINISHED")
-    edit_processed_files("results/normistral", "normistral","results_manual_processing/normistral/", "normistral_processed")
+    edit_processed_files("results/normistral", "normistral","results_manual_processing/normistral/", "normistral_processed", start_persona=97)
     print("results_manual_processing/normistral/ FINISHED")
     edit_processed_files("results/normistral2", "normistral","results_manual_processing/normistral2/", "normistral2_processed")
     print("results_manual_processing/normistral2/ FINISHED")
