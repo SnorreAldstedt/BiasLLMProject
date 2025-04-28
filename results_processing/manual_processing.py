@@ -35,6 +35,19 @@ def edit_processed_files(original_folder, original_suffix,
             current_val = processed_data[q_key]
             if current_val == None or current_val == "UNKNOWN":
                 original_val = original_data.get(q_key, "[No original answer found]")
+                # Manual checking for strings repeated in norwAI which made manual processing harder
+                # Comment out when not running norwAI
+                """ 
+                string_typical_1 = "1: Helt enig, 2: Nokså enig, 3: Både og, 4: Nokså uenig, 5: Helt uenig."
+                string_typical_2 = "1: Helt enig 2: Nokså enig, 3: Både og, 4: Nokså uenig, 5: Helt uenig."
+                string_typical_3 = "1: Helt enig, 2: Nokså enig, 3: Både og, 4: Nokså uenig, 5: Helt uenig"
+                string_typical_4 = "1: Helt enig 2: Nokså enig, 3: Både og, 4: Nokså uenig, 5: Helt uenig"
+                if string_typical_1.strip() == original_val.strip() or \
+                    string_typical_2.strip() == original_val.strip() or \
+                    string_typical_3.strip() == original_val.strip() or \
+                    string_typical_4.strip() == original_val.strip():
+                    continue
+                """
                 new_val = prompt_for_manual_input(persona_nr, q_key, original_val)
                 if new_val != None:
                     processed_data[q_key] = new_val
@@ -59,9 +72,9 @@ if __name__ == "__main__":
     print("results_manual_processing/mistral2/ FINISHED")
     #edit_processed_files("results/normistral", "normistral","results_manual_processing/normistral/", "normistral_processed")
     print("results_manual_processing/normistral/ FINISHED")
-    edit_processed_files("results/normistral2", "normistral","results_manual_processing/normistral2/", "normistral2_processed")
+    #edit_processed_files("results/normistral2", "normistral","results_manual_processing/normistral2/", "normistral2_processed")
     print("results_manual_processing/normistral2/ FINISHED")
-    edit_processed_files("results/norwAI_mistral", "norwAI","results_manual_processing/norwAI_mistral/", "norwAI_processed")
+    #edit_processed_files("results/norwAI_mistral", "norwAI","results_manual_processing/norwAI_mistral/", "norwAI_processed")
     print("results_manual_processing/norwAI_mistral/ FINISHED")
     edit_processed_files("results/norwAI_mistral2", "norwAI","results_manual_processing/norwAI_mistral2/", "norwAI2_processed")
     print("results_manual_processing/norwAI_mistral2/ FINISHED")
