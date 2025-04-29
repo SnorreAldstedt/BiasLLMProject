@@ -59,6 +59,29 @@ def edit_processed_files(original_folder, original_suffix,
         else:
             print(f"No changes for persona {persona_nr}")
 
+def combine_dicts(list_of_dicts):
+    new_dict = {}
+    for i in range(len(list_of_dicts)):
+        new_dict[i] = list_of_dicts[i]
+    return new_dict
+
+#test_dicts = [{"test1":1},{"test2":2}]
+#print(combine_dicts(test_dicts))
+
+def load_all_persona_json(processed_folder, processed_suffix, start_p = 0, end_p = 120):
+    dict_list = []
+    for i in range(start_p, end_p):
+        processed_path = os.path.join(processed_folder, f"{i}_{processed_suffix}_processed.json")
+        persona_dict = load_json_file(processed_path)
+        dict_list.append(persona_dict)
+    return dict_list
+
+def load_and_combine_json(processed_folder, processed_suffix):
+    combined_json = load_all_persona_json(processed_folder, processed_suffix)
+    combine_name = os.path.join(processed_folder, f"combined_{processed_suffix}.json")
+    combined = combine_dicts(combined_json)
+    save_json_file(combine_name, combined)
+
 # Example:
 # edit_processed_files("results", "llama3", "results_manual_processing", "llama3_processed"), runs llama3 and checks the processed file, if Unknown or None, manually process the question
 if __name__ == "__main__":
@@ -76,6 +99,13 @@ if __name__ == "__main__":
     print("results_manual_processing/normistral2/ FINISHED")
     #edit_processed_files("results/norwAI_mistral", "norwAI","results_manual_processing/norwAI_mistral/", "norwAI_processed")
     print("results_manual_processing/norwAI_mistral/ FINISHED")
-    edit_processed_files("results/norwAI_mistral2", "norwAI","results_manual_processing/norwAI_mistral2/", "norwAI2_processed")
+    #edit_processed_files("results/norwAI_mistral2", "norwAI","results_manual_processing/norwAI_mistral2/", "norwAI2_processed")
     print("results_manual_processing/norwAI_mistral2/ FINISHED")
-    
+    load_and_combine_json("results_manual_processing/llama3/", "llama3")
+    load_and_combine_json("results_manual_processing/llama3_2/", "llama3_2")
+    load_and_combine_json("results_manual_processing/mistral/", "mistral")
+    load_and_combine_json("results_manual_processing/mistral2/", "mistral2")
+    load_and_combine_json("results_manual_processing/normistral/", "normistral")
+    load_and_combine_json("results_manual_processing/normistral2/", "normistral2")
+    load_and_combine_json("results_manual_processing/norwAI_mistral/", "norwAI")
+    load_and_combine_json("results_manual_processing/norwAI_mistral2/", "norwAI2")
