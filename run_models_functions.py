@@ -149,3 +149,4 @@ def load_personas_from_json(json_path):
         personas_list.append(persona)
 
     return personas_list
+
